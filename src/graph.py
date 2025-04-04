@@ -63,9 +63,9 @@ def build_graph():
     builder.add_node("initializer", initialize_node)
     builder.add_node("planner", planning_node)
     # Logic
-    builder.add_edge(START, "welcome")
+    builder.add_conditional_edges(START, check_initialization, {"init_pending": "welcome", "init_complete": "planner"})
     builder.add_edge("welcome", "initializer")
     builder.add_conditional_edges("initializer", check_initialization, {"init_pending": END, "init_complete": "planner"})
-    #builder.add_edge("planner", END)
+    builder.add_edge("planner", END)
     # Compile
     return builder.compile()
