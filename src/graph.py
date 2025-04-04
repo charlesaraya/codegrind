@@ -1,8 +1,12 @@
 import json
 
-from langgraph.graph import MessagesState, StateGraph, START, END
+from langgraph.graph import StateGraph, START, END
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
+
+from state import (
+    UserInfoState
+)
 
 from prompts import (
     PROMPT_SYSTEM_WELCOME,
@@ -19,11 +23,6 @@ def parse_response(content):
         raise ValueError(f"Invalid JSON: {e}")
     return result
 
-class UserInfoState(MessagesState):
-    name: str
-    language: str
-    skill_level: str
-
 def welcome_node(state: UserInfoState):
     messages = [SystemMessage(content=PROMPT_SYSTEM_WELCOME)] + state["messages"]
     response = model.invoke(messages)
@@ -36,7 +35,6 @@ def initialize_node(state: UserInfoState):
 
     messages = [SystemMessage(content=PROMPT_SYSTEM_INIT)]
     messages.append(state['messages'][-1])
-    #messages.append(HumanMessage(content=f"Last message: {state['messages'][-1]}.\nKnown information: [Name: {"Unknown" if not name else name}, Language: {"Unknown" if not language else language}, Skill Level: {"Unknown" if not skill_level else skill_level}]"))
 
     response = model.invoke(messages)
     result = parse_response(response.content)
